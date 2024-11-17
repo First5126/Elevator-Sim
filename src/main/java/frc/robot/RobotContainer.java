@@ -6,18 +6,22 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.Elevator;
 
 public class RobotContainer {
   private final Elevator m_elevator = new Elevator();
-  
+  private final CommandXboxController m_controller = new CommandXboxController(0);
   public RobotContainer() {
     configureBindings();
   }
 
-  private void configureBindings() {}
+  private void configureBindings() {
+    m_elevator.setDefaultCommand(m_elevator.openLoopCommand(m_controller::getLeftY));
+  }
 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
+
   }
 }

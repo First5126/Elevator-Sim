@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -11,6 +13,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
@@ -18,6 +21,7 @@ import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Elevator extends SubsystemBase {
@@ -62,7 +66,18 @@ public class Elevator extends SubsystemBase {
   public void simulationPeriodic() {
     // In this method, we update our simulation of our elevator.
     // We set the inputs of the elevator plant to the voltages, and update the simulation.
+    m_simulator.setInput(m_leftMotor.getMotorVoltage().getValue());
     // We then set the simulated encoder distance and velocity in the elevator object.
+    TalonFXSimState simState = m_leftMotor.getSimState();
+    simState.setSupplyVoltage(m_simulator.getPositionMeters());
+    simState.setRotorVelocity(m_simulator.getVelocityMetersPerSecond());
+  }
 
+  public void setSpeed(double speed){
+    m_leftMotor.setVoltage(12*speed);
+  }
+
+  public Command openLoopCommand(Supplier<Double> speed) {
+    return run(() -> setSpeed(speed.get()));
   }
 }
